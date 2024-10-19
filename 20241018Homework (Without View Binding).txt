@@ -1,0 +1,108 @@
+package com.example.myapplication1018homework
+
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.RadioGroup
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.enableEdgeToEdge
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var playerNameInput: EditText
+    private lateinit var resultText: TextView
+    private lateinit var playerChoiceGroup: RadioGroup
+    private lateinit var playButton: Button
+    private lateinit var playerNameDisplay: TextView
+    private lateinit var winnerDisplay: TextView
+    private lateinit var playerMoveDisplay: TextView
+    private lateinit var computerMoveDisplay: TextView
+
+    private val moves = listOf("剪刀", "石頭", "布")
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_main)
+        setupWindowInsets()
+        initializeViews()
+        setupPlayButton()
+    }
+
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+    }
+
+    private fun initializeViews() {
+        playerNameInput = findViewById(R.id.ed_name)
+        resultText = findViewById(R.id.tv_text)
+        playerChoiceGroup = findViewById(R.id.radioGroup)
+        playButton = findViewById(R.id.btn_mora)
+        playerNameDisplay = findViewById(R.id.tv_name)
+        winnerDisplay = findViewById(R.id.tv_winner)
+        playerMoveDisplay = findViewById(R.id.tv_mmora)
+        computerMoveDisplay = findViewById(R.id.tv_cmora)
+    }
+
+    private fun setupPlayButton() {
+        playButton.setOnClickListener {
+            if (playerNameInput.text.isEmpty()) {
+                resultText.text = "請輸入玩家姓名"
+                return@setOnClickListener
+            }
+            playGame()
+        }
+    }
+
+    private fun playGame() {
+        val playerName = playerNameInput.text.toString()
+        val playerMove = getPlayerMove()
+        val computerMove = getComputerMove()
+
+        displayResults(playerName, playerMove, computerMove)
+        determineWinner(playerName, playerMove, computerMove)
+    }
+
+    private fun getPlayerMove(): Int {
+        return when (playerChoiceGroup.checkedRadioButtonId) {
+            R.id.btn_scissor -> 0
+            R.id.btn_stone -> 1
+            else -> 2
+        }
+    }
+
+    private fun getComputerMove(): Int {
+        return (0..2).random()
+    }
+
+    private fun displayResults(playerName: String, playerMove: Int, computerMove: Int) {
+        playerNameDisplay.text = "名字\n$playerName"
+        playerMoveDisplay.text = "我方出拳\n${moves[playerMove]}"
+        computerMoveDisplay.text = "電腦出拳\n${moves[computerMove]}"
+    }
+
+    private fun determineWinner(playerName: String, playerMove: Int, computerMove: Int) {
+        when {
+            playerMove == computerMove -> {
+                winnerDisplay.text = "勝利者\n平手"
+                resultText.text = "˚　　　　✦　　　.　　. 　˚　.\n平局，請再玩一次！\n . ✦　　　 　˚　　　　 . ★⋆."
+            }
+            (playerMove == 0 && computerMove == 2) ||
+                    (playerMove == 1 && computerMove == 0) ||
+                    (playerMove == 2 && computerMove == 1) -> {
+                winnerDisplay.text = "勝利者\n$playerName"
+                resultText.text = "恭喜你獲勝了！！！\n\n/ ᐢ⑅ᐢ \\   ♡   ₊˚\n     ꒰ ˶• ༝ •˶꒱  ♡‧₊˚    ♡\n./づ~ :¨·.·¨:     ₊˚\n                `·..·‘    ₊˚   ♡"
+            }
+            else -> {
+                winnerDisplay.text = "勝利者\n電腦"
+                resultText.text = "可惜，電腦獲勝了(˃̣̣̥ᯅ˂̣̣̥)\n\n    ⣴⠟⢷⣤⡞⢳⣴⡟⢳⡄⣿⠳⡔⣧⠀⣼⠆\n    ⠛⢷⡝⣿⠀⢈⣯⣇⣴⠗⣿⣠⡟⠸⣿⠃\n⢸⣦⣿⠹⣦⡼⠻⡟⠷⣤⣿⠿⣄⠀⣿"
+            }
+        }
+    }
+}
